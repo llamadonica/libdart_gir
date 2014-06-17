@@ -1,6 +1,6 @@
 /* -*- Mode: C; indent-tabs-mode: s; c-basic-offset: 2; tab-width: 2 -*-  */
 /*
- * lib.c
+ * libdar_gir_core.c
  * Copyright (C) 2014 Adam Stark <llamadonica@gmail.com>
  * 
  * libdart-gir is free software: you can redistribute it and/or modify it
@@ -24,8 +24,7 @@
 
 #include <girepository.h>
 
-#include "include/dart_api.h"
-#include "include/dart_native_api.h"
+#include <dart_api.h>
 
 /***
  * TODO(astark):

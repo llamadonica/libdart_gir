@@ -10,6 +10,7 @@ AM_INIT_AUTOMAKE([1.11])
 AM_SILENT_RULES([yes])
 
 AC_PROG_CC
+AM_PROG_VALAC([0.20])
 
 
 dnl ***************************************************************************
@@ -31,7 +32,7 @@ LT_INIT
 
 
 
-
+PKG_CHECK_MODULES(GLIB, glib-2.0 gobject-2.0)
 PKG_CHECK_MODULES(GOBJECT_INTROSPECTION,gobject-introspection-1.0)
 
 AC_OUTPUT([

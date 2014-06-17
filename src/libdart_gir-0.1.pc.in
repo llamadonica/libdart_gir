@@ -1,0 +1,13 @@
+prefix=@prefix@ 
+exec_prefix=@exec_prefix@ 
+libdir=@libdir@ 
+datarootdir=@datarootdir@ 
+datadir=@datadir@ 
+includedir=@includedir@/liblibdart_gir-0.1 
+
+Name: liblibdart_gir 
+Description: Sample library created by Anjuta project wizard. 
+Version: @VERSION@ 
+Requires: 
+Libs: -L${libdir} -llibdart_gir 
+Cflags: -I${includedir}
