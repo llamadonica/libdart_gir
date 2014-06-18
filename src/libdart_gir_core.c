@@ -48,22 +48,6 @@ Dart_Handle HandleError(Dart_Handle handle) {
   return handle;
 }
 
-static Dart_Handle parent_library;
-
-DART_EXPORT Dart_Handle dart_gir_Init(Dart_Handle _parent_library) {
-  parent_library = _parent_library;
-  if (!dlopen("libgirepository-1.0.so.1",RTLD_NOW))
-    return NULL;
-  if (Dart_IsError(parent_library)) return parent_library;
-
-  Dart_Handle result_code =
-      Dart_SetNativeResolver(parent_library, ResolveName, ResolveFunctionPtr);
-  if (Dart_IsError(result_code)) return result_code;
-
-
-  return Dart_Null();
-}
-
 void HelloWorld(Dart_NativeArguments arguments) {
   Dart_Handle result = HandleError(Dart_NewStringFromCString("Hello Dart."));
   Dart_SetReturnValue(arguments, result);
@@ -137,11 +121,6 @@ GObject* dart_gir_proxy_gobject_unwrap_unowned (Dart_Handle object) {
   return result;
 }
 
-void dart_gir_repository_get_default(Dart_NativeArguments arguments) {
-  Dart_Handle result = HandleError(dart_gir_create_proxy_gobject_unowned(G_OBJECT(g_irepository_get_default ()), "GIRepository"));
-  Dart_SetReturnValue(arguments, result);
-}
-
 void dart_gir_repository_get_loaded_namespaces(Dart_NativeArguments arguments) {
   if (Dart_GetNativeArgumentCount(arguments) < 1) {
     Dart_NewApiError("Object was not a GObject type.");
@@ -166,14 +145,12 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc, bool* auto_setup_sco
   const char* cname;
   HandleError(Dart_StringToCString(name, &cname));
 
-  if (strcmp("dart_gir_repository_get_default", cname) == 0)           return dart_gir_repository_get_default;
   if (strcmp("dart_gir_repository_get_loaded_namespaces", cname) == 0) return dart_gir_repository_get_loaded_namespaces;
   
   return result;
 }
 
 const uint8_t* ResolveFunctionPtr(Dart_NativeFunction nf) {
-  if (nf == dart_gir_repository_get_default)           return (const uint8_t*) "dart_gir_repository_get_default";
   if (nf == dart_gir_repository_get_loaded_namespaces) return (const uint8_t*) "dart_gir_repository_get_loaded_namespaces";
   
   return NULL;

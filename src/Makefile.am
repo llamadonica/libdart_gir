@@ -13,6 +13,9 @@ AM_CPPFLAGS = \
 AM_CFLAGS =\
 	 -Wall\
 	 -g
+	 
+AM_VALAFLAGS = \
+  --pkg=gobject-introspection-1.0
 
 lib_LTLIBRARIES = libdart_gir.la
 
