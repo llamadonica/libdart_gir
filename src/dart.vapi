@@ -32,6 +32,9 @@ public class Handle {
   [CCode (cname="Dart_IsNull")]
   public bool is_null();
   
+  [CCode (cname="Dart_IsList")]
+  public bool is_list();
+  
   [CCode (cname="Dart_Null")]
   public static unowned Handle null();
   
@@ -78,7 +81,13 @@ public class ListHandle : Handle {
   public ListHandle(int length);
   
   [CCode (cname="Dart_ListSetAt")]
-  public void set(int i, Handle value);
+  public Handle set(int i, Handle value);
+  
+  [CCode (cname="Dart_ListLength")]
+  public unowned Handle length(out int length);
+  
+  [CCode (cname="Dart_ListGetAt")]
+  public Handle get(int i);
 }
 
 [Compact]
@@ -107,7 +116,9 @@ public class APIErrorHandle : Handle {
 
 public errordomain DartError {
   API_ERROR,
-  NOT_A_GI_OBJECT
+  NOT_A_GI_OBJECT,
+  UNEXPECTED_CAST,
+  CATCH
 }
 
 }

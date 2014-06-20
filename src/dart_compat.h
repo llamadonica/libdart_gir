@@ -32,6 +32,7 @@ GQuark dart_dart_error_quark (void) {
 typedef enum  {
 	DART_DART_ERROR_API_ERROR,
 	DART_DART_ERROR_NOT_A_GI_OBJECT,
+	DART_DART_ERROR_UNEXPECTED_CAST,
 	DART_DART_ERROR_CATCH
 } Dart_DartError;
 
@@ -69,7 +70,9 @@ struct _dart_generic_wrapper {
 
 void dart_generic_wrapper_finalize (void* isolate_callback_data, 
     Dart_WeakPersistentHandle handle, void* peer) {
+#ifdef DEBUG
   fprintf (stderr, "Entered GC: dart_generic_wrapper_finalize\n");
+#endif
   dart_generic_wrapper *captured = (dart_generic_wrapper*) peer;
   if (captured->t_destroy_func != NULL && captured->value != NULL) 
     captured->t_destroy_func(captured->value);
@@ -81,12 +84,16 @@ Dart_Handle dart_handle_wrap (GType t_type, GBoxedCopyFunc t_dup_func,
     const char *constructor, gboolean is_nullable,Dart_Handle* set_on_error,
     GError** error) {
   
+#ifdef DEBUG
   fprintf (stderr, "Entered Dart.Handle.wrap<T>\n");
   fprintf (stderr, "  wrap<%s>\n", g_type_name (t_type));
+#endif
   Dart_Handle ctor_name = 
       constructor==NULL?Dart_Null():Dart_NewStringFromCString(constructor);
   if (value==NULL && !is_nullable){
+#ifdef DEBUG
     fprintf (stderr, "  returning `null`\n");
+#endif
     return Dart_Null();
   }
   
@@ -97,7 +104,9 @@ Dart_Handle dart_handle_wrap (GType t_type, GBoxedCopyFunc t_dup_func,
   if (error != NULL && *error != NULL) {
     if (t_destroy_func != NULL && value != NULL)
       t_destroy_func(value);
+#ifdef DEBUG
     fprintf (stderr, "Caught error in new %s\n", g_type_name (t_type));
+#endif
     return instance;
   }
   
@@ -114,13 +123,17 @@ Dart_Handle dart_handle_wrap (GType t_type, GBoxedCopyFunc t_dup_func,
     if (t_destroy_func != NULL && value != NULL)
       t_destroy_func(value);
     g_slice_free(dart_generic_wrapper,captured);
+#ifdef DEBUG
     fprintf (stderr, "Caught error in Dart_SetNativeInstanceField %s\n", g_type_name (t_type));
+#endif
     return caught_on_error;
   }
   Dart_NewWeakPersistentHandle(instance, (void*) captured, 0, 
       &dart_generic_wrapper_finalize);
   
+#ifdef DEBUG
   fprintf (stderr, "Exiting normally from Dart.Handle.wrap<T>\n");
+#endif
   return instance;
 }
 

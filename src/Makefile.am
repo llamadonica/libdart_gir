@@ -24,7 +24,6 @@ libdart_gir_la_VALA_SOURCES = \
 	gir_visitor.vala
 
 libdart_gir_la_SOURCES = \
-	libdart_gir_core.c \
     $(libdart_gir_la_VALA_SOURCES) \
     dart.vapi
 
