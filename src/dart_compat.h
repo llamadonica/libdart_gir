@@ -114,7 +114,7 @@ Dart_Handle dart_handle_wrap (GType t_type, GBoxedCopyFunc t_dup_func,
   captured->t_type = t_type;
   captured->t_dup_func = t_dup_func;
   captured->t_destroy_func = t_destroy_func;
-  captured->value = value;
+  captured->value = (t_dup_func == NULL || value == NULL)?value:t_dup_func(value);
   
   Dart_Handle caught_on_error = Dart_SetNativeInstanceField(instance, 0, 
       (intptr_t) captured);
@@ -165,7 +165,9 @@ gpointer dart_handle_unwrap (Dart_Handle handle, GType t_type,
         g_type_name(captured->t_type));
     return NULL;
   }
-  return captured->value;
+  if (captured == NULL) return NULL;
+  return (captured->t_dup_func == NULL || captured->value == NULL)?captured->value:captured->t_dup_func(captured->value);
+  
 }
 
 #endif

@@ -12,7 +12,6 @@ AM_SILENT_RULES([yes])
 AC_PROG_CC
 AM_PROG_VALAC([0.20])
 
-
 dnl ***************************************************************************
 dnl Internationalization
 dnl ***************************************************************************
@@ -23,14 +22,7 @@ AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [GETTEXT package name])
 AM_GLIB_GNU_GETTEXT
 
-
-
-
-
 LT_INIT
-
-
-
 
 PKG_CHECK_MODULES(GLIB, glib-2.0 gobject-2.0)
 PKG_CHECK_MODULES(GOBJECT_INTROSPECTION,gobject-introspection-1.0)
@@ -39,4 +31,5 @@ AC_OUTPUT([
 Makefile
 src/libdart_gir-0.1.pc
 src/Makefile
+test/Makefile
 po/Makefile.in])

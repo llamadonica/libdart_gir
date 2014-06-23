@@ -19,12 +19,12 @@ AM_VALAFLAGS = \
 
 lib_LTLIBRARIES = libdart_gir.la
 
-libdart_gir_la_VALA_SOURCES = \
+libdart_gir_la_VALASOURCES = \
     dart_gir_core.vala \
 	gir_visitor.vala
 
 libdart_gir_la_SOURCES = \
-    $(libdart_gir_la_VALA_SOURCES) \
+    $(libdart_gir_la_VALASOURCES) \
     dart.vapi
 
 libdart_gir_la_LDFLAGS = -ldl
@@ -32,7 +32,7 @@ libdart_gir_la_LDFLAGS = -ldl
 libdart_gir_la_LIBADD = $(GOBJECT_INTROSPECTION_LIBS) $(GLIB_LIBS)
 
 CLEANFILES = \
-  $(libdart_gir_la_VALA_SOURCES:.vala=.c) \
+  $(libdart_gir_la_VALASOURCES:.vala=.c) \
   libdart_gir_la_vala.stamp
 
 include_HEADERS = \

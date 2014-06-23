@@ -6,9 +6,8 @@ abstract class GirVisitable {
 
 abstract class GirVisitor {
   void visitNamespace (Namespace e);
-  
-  void visitMethod (FunctionInfo e);
-  
+  void visitBaseInfo (BaseInfo e);
+  /*
   void visitObject (ObjectInfo e);
   void visitProperty (PropertyInfo e);
   
@@ -31,4 +30,17 @@ abstract class GirVisitor {
   void visitSignal (SignalInfo e);
   
   void visitArgument (ArgInfo e);
+  */
+}
+
+class GirDebugVisitor implements GirVisitor {
+  void visitNamespace (Namespace e) {
+    print("//Visiting ${e.namespace}");
+  }
+  void visitBaseInfo (BaseInfo e) {
+    print("//  Visiting ${e.name}");
+    for (var i in e.attributes) {
+      print("//    ${i.attribute} = ${i.value}");
+    }
+  }
 }

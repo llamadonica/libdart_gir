@@ -38,24 +38,33 @@ public class Handle {
   [CCode (cname="Dart_Null")]
   public static unowned Handle null();
   
+  [CCode (cname="Dart_IsInteger")]
+  public bool is_int();
+  
   [CCode (cname="dart_handle_wrap")]
-  public static Handle wrap<T>(T object, Handle cls, string? constructor = null, bool is_nullable = false, out Dart.Handle on_error = null) throws DartError;
+  public static Handle wrap<T>(T object, Handle cls, string? constructor = null, bool is_nullable = false, ref Dart.Handle on_error) throws DartError;
   
   [CCode (cname="dart_handle_peek_type")]
-  public GLib.Type peek_type(out Dart.Handle on_error = null) throws DartError;
+  public GLib.Type peek_type(ref Dart.Handle on_error) throws DartError;
   
   [CCode (cname="dart_handle_unwrap")]
-  public T? unwrap<T>(out Dart.Handle on_error = null) throws DartError;
+  public T? unwrap<T>(ref Dart.Handle on_error) throws DartError;
   
   
   [CCode (cname="dart_handle_rethrow")]
   public void rethrow();
   
   [CCode (cname="dart_handle_catch")]
-  public void recast_error(out Dart.Handle on_error = null) throws DartError;
+  public void recast_error(ref Dart.Handle on_error) throws DartError;
   
   [CCode (cname="Dart_ObjectIsType")]
   public Handle is_type(ClassHandle class, out bool is_instance);
+  
+  [CCode (cname="Dart_GetField")]
+  public Handle get_field(StringHandle name);
+  
+  [CCode (cname="Dart_SetField")]
+  public Handle set_field(StringHandle name, Handle value);
 }
 
 [Compact]
@@ -92,9 +101,22 @@ public class ListHandle : Handle {
 
 [Compact]
 [CCode (cname="struct _Dart_Handle", cheader_filename="dart_compat.h")]
+public class IntHandle : Handle {
+  [CCode (cname="Dart_NewInteger")]
+  public IntHandle(int64 value);
+  
+  [CCode (cname="Dart_IntegerToInt64")]
+  public Handle to_int64(out int64 value);
+}
+
+[Compact]
+[CCode (cname="struct _Dart_Handle", cheader_filename="dart_compat.h")]
 public class ClassHandle : Handle {
   [CCode (cname="Dart_Allocate")]
   public Handle allocate();
+  
+  [CCode (cname="Dart_New")]
+  public Handle new(Handle constructor, [CCode (array_length_pos=1.9)] Handle[] arguments);
 }
 
 [Compact]
@@ -113,7 +135,14 @@ public class APIErrorHandle : Handle {
   [CCode (cname="Dart_NewApiError")]
   public APIErrorHandle(string value);
 }
+//Dart_NewBoolean
 
+[Compact]
+[CCode (cname="struct _Dart_Handle", cheader_filename="dart_compat.h", has_type_id=false)]
+public class BooleanHandle : Handle {
+  [CCode (cname="Dart_NewBoolean")]
+  public BooleanHandle(bool value);
+}
 public errordomain DartError {
   API_ERROR,
   NOT_A_GI_OBJECT,
@@ -121,4 +150,4 @@ public errordomain DartError {
   CATCH
 }
 
-}
+} 
