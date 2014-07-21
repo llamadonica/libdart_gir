@@ -15,7 +15,8 @@ AM_CFLAGS =\
 	 -g
 	 
 AM_VALAFLAGS = \
-  --pkg=gobject-introspection-1.0
+  --pkg=gobject-introspection-1.0 \
+  --vapidir=../src
 
 bin_PROGRAMS = testsuite
 

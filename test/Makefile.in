@@ -280,7 +280,8 @@ AM_CFLAGS = \
 	 -g
 
 AM_VALAFLAGS = \
-  --pkg=gobject-introspection-1.0
+  --pkg=gobject-introspection-1.0 \
+  --vapidir=../src
 
 testsuite_VALASOURCES = \
   gir_test_suite.vala

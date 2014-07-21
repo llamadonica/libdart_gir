@@ -16,7 +16,7 @@ private class GirDebugVisitor : GLib.Object, GirVisitor {
     print(@"//Visiting $(e.get_namespace())\n");
   }
   public virtual void visit_base_info (BaseInfo e) {
-    print(@"//  Visiting $(e.get_base_info().get_name())\n");
+    print(@"//  Visiting $(e.get_base_info().name)\n");
     GI.AttributeIter iterator = {};
     string attribute, value;
     while (e.get_base_info().iterate_attributes(ref iterator, out attribute, out value)) {

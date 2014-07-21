@@ -1,6 +1,6 @@
 part of libdart_gir;
 
-abstract class Namespace extends ListMixin<BaseInfo> implements GirVisitable, List<BaseInfo> {
+abstract class Namespace extends ListMixin<BaseInfo> implements List<BaseInfo> {
   List<String> get dependencies;
   String get namespace;
   factory Namespace (Repository repository,String namespace) =>
@@ -11,6 +11,8 @@ abstract class Namespace extends ListMixin<BaseInfo> implements GirVisitable, Li
 class _Namespace extends Namespace {
   final Repository _repository;
   final String _namespace;
+  int childrenPending = 0;
+  
   _Namespace(Repository this._repository,String this._namespace) : super._() {
     _repository.require(namespace);
   }
@@ -27,9 +29,19 @@ class _Namespace extends Namespace {
     throw new StateError("Namespace is an immutable list.");
   }
   
-  void accept(GirVisitor visitor) {
-    visitor.visitNamespace (this);
-    for (var i in this)
-      visitor.visitBaseInfo (i);
+  Future<LibraryDeclaration> accept(GirVisitor visitor) {
+    var library = visitor.visitNamespace (this);
+    var completer = new Completer<LibraryDeclaration>();
+    for (var i in dependencies)
+      library.requireDependency(i);
+    for (var i in this) {
+      childrenPending++;
+      i.accept(library, visitor).then((_) {
+        if (--childrenPending == 0) {
+          completer.complete(library);
+        }
+      });
+    }
+    return completer.future;
   }
 }

@@ -10,6 +10,38 @@ public delegate unowned string? NativeEntrySymbol(NativeFunction function);
 [CCode (has_target = false, type="Blah")]
 public delegate NativeFunction? NativeEntryResolver(Handle name,  int number_of_arguments, out bool auto_setup_scope);
 
+[CCode (cname="Dart_TypedData_Type")]
+public enum TypedDataType {
+  [CCode (cname="Dart_TypedData_kByteData")]
+  BYTE_DATA,
+  [CCode (cname="Dart_TypedData_kInt8")]
+  INT8,
+  [CCode (cname="Dart_TypedData_kUint8")]
+  UINT8,
+  [CCode (cname="Dart_TypedData_kUint8Clamped")]
+  Uint8Clamped,
+  [CCode (cname="Dart_TypedData_kInt16")]
+  INT16,
+  [CCode (cname="Dart_TypedData_kUint16")]
+  UINT16,
+  [CCode (cname="Dart_TypedData_kInt32")]
+  INT32,
+  [CCode (cname="Dart_TypedData_kUint32")]
+  UINT32,
+  [CCode (cname="Dart_TypedData_kInt64")]
+  INT64,
+  [CCode (cname="Dart_TypedData_kUint64")]
+  UINT64,
+  [CCode (cname="Dart_TypedData_kFloat32")]
+  FLOAT32,
+  [CCode (cname="Dart_TypedData_kFloat64")]
+  FLOAT64,
+  [CCode (cname="Dart_TypedData_kFloat32x4")]
+  FLOAT32x4,
+  [CCode (cname="Dart_TypedData_kInvalid")]
+  INVALID;
+}
+
 [Compact]
 [CCode (cname="struct _Dart_NativeArguments")]
 public class NativeArguments {
@@ -60,11 +92,26 @@ public class Handle {
   [CCode (cname="Dart_ObjectIsType")]
   public Handle is_type(ClassHandle class, out bool is_instance);
   
+  [CCode (cname="Dart_InstanceGetType")]
+  public Handle get_type();
+  
   [CCode (cname="Dart_GetField")]
   public Handle get_field(StringHandle name);
   
   [CCode (cname="Dart_SetField")]
   public Handle set_field(StringHandle name, Handle value);
+  
+  [CCode (cname="Dart_ToString")]
+  public StringHandle to_string();
+  
+  [CCode (cname="Dart_Invoke")]
+  public Handle invoke(StringHandle name, [CCode (array_length_pos=1.9)] Handle[] arguments);
+  
+  [CCode (cname="Dart_TypedDataAcquireData")]
+  public Handle acquire_data(out TypedDataType type, out void* data, out int length);
+  
+  [CCode (cname="Dart_TypedDataReleaseData")]
+  public Handle release_data();
 }
 
 [Compact]
@@ -107,6 +154,9 @@ public class IntHandle : Handle {
   
   [CCode (cname="Dart_IntegerToInt64")]
   public Handle to_int64(out int64 value);
+  
+  [CCode (cname="Dart_NewIntegerFromHexCString")]
+  public IntHandle.from_hex_c_string(string value);
 }
 
 [Compact]
@@ -127,6 +177,13 @@ public class StringHandle : Handle {
   
   [CCode (cname="Dart_StringToCString")]
   public unowned Handle to_c_string(out unowned string cstring);
+}
+
+[Compact]
+[CCode (cname="struct _Dart_Handle", cheader_filename="dart_compat.h", has_type_id=false)]
+public class DoubleHandle : Handle {
+  [CCode (cname="Dart_NewDouble")]
+  public DoubleHandle(double value);
 }
 
 [Compact]

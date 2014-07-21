@@ -64,7 +64,7 @@ typedef struct _GirDebugVisitorClass GirDebugVisitorClass;
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 typedef struct _GirDebugVisitorPrivate GirDebugVisitorPrivate;
 #define _g_free0(var) (var = (g_free (var), NULL))
-#define __vala_GIBaseInfo_free0(var) ((var == NULL) ? NULL : (var = (_vala_GIBaseInfo_free (var), NULL)))
+#define _g_base_info_unref0(var) ((var == NULL) ? NULL : (var = (g_base_info_unref (var), NULL)))
 
 #define TYPE_NAMESPACE_IMPL (namespace_impl_get_type ())
 #define NAMESPACE_IMPL(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_NAMESPACE_IMPL, NamespaceImpl))
@@ -200,7 +200,6 @@ gchar* namespace_get_namespace (Namespace* self);
 void gir_debug_visitor_visit_base_info (GirDebugVisitor* self, BaseInfo* e);
 static void gir_debug_visitor_real_visit_base_info (GirDebugVisitor* self, BaseInfo* e);
 GIBaseInfo* base_info_get_base_info (BaseInfo* self);
-static void _vala_GIBaseInfo_free (GIBaseInfo* self);
 GIRepository* namespace_get_repository (Namespace* self);
 NamespaceImpl* namespace_impl_new (GIRepository* repository, const gchar* namespace, GError** error);
 NamespaceImpl* namespace_impl_construct (GType object_type, GIRepository* repository, const gchar* namespace, GError** error);
@@ -227,7 +226,6 @@ enum  {
 };
 GIBaseInfo* base_info_impl_get_base_info (BaseInfoImpl* self);
 static GIBaseInfo* base_info_impl_real_get_base_info (BaseInfoImpl* self);
-static GIBaseInfo* _vala_GIBaseInfo_copy (GIBaseInfo* self);
 static void base_info_impl_real_accept (BaseInfoImpl* self, GirVisitor* visitor);
 static void base_info_impl_finalize (GObject* obj);
 
@@ -366,20 +364,16 @@ void gir_debug_visitor_visit_namespace (GirDebugVisitor* self, Namespace* e) {
 }
 
 
-static void _vala_GIBaseInfo_free (GIBaseInfo* self) {
-	g_boxed_free (g_base_info_gtype_get_type (), self);
-}
-
-
 static void gir_debug_visitor_real_visit_base_info (GirDebugVisitor* self, BaseInfo* e) {
 	BaseInfo* _tmp0_;
 	GIBaseInfo* _tmp1_ = NULL;
 	GIBaseInfo* _tmp2_;
-	const gchar* _tmp3_ = NULL;
-	const gchar* _tmp4_ = NULL;
-	gchar* _tmp5_ = NULL;
-	gchar* _tmp6_;
-	GIAttributeIter _tmp7_ = {0};
+	const gchar* _tmp3_;
+	const gchar* _tmp4_;
+	const gchar* _tmp5_ = NULL;
+	gchar* _tmp6_ = NULL;
+	gchar* _tmp7_;
+	GIAttributeIter _tmp8_ = {0};
 	GIAttributeIter iterator;
 	gchar* attribute = NULL;
 	gchar* value = NULL;
@@ -388,52 +382,53 @@ static void gir_debug_visitor_real_visit_base_info (GirDebugVisitor* self, BaseI
 	_tmp1_ = base_info_get_base_info (_tmp0_);
 	_tmp2_ = _tmp1_;
 	_tmp3_ = g_base_info_get_name (_tmp2_);
-	_tmp4_ = string_to_string (_tmp3_);
-	_tmp5_ = g_strconcat ("//  Visiting ", _tmp4_, "\n", NULL);
-	_tmp6_ = _tmp5_;
-	g_print ("%s", _tmp6_);
-	_g_free0 (_tmp6_);
-	__vala_GIBaseInfo_free0 (_tmp2_);
-	iterator = _tmp7_;
+	_tmp4_ = _tmp3_;
+	_tmp5_ = string_to_string (_tmp4_);
+	_tmp6_ = g_strconcat ("//  Visiting ", _tmp5_, "\n", NULL);
+	_tmp7_ = _tmp6_;
+	g_print ("%s", _tmp7_);
+	_g_free0 (_tmp7_);
+	_g_base_info_unref0 (_tmp2_);
+	iterator = _tmp8_;
 	while (TRUE) {
-		BaseInfo* _tmp8_;
-		GIBaseInfo* _tmp9_ = NULL;
-		GIBaseInfo* _tmp10_;
-		const gchar* _tmp11_ = NULL;
+		BaseInfo* _tmp9_;
+		GIBaseInfo* _tmp10_ = NULL;
+		GIBaseInfo* _tmp11_;
 		const gchar* _tmp12_ = NULL;
-		gboolean _tmp13_ = FALSE;
-		gchar* _tmp14_;
+		const gchar* _tmp13_ = NULL;
+		gboolean _tmp14_ = FALSE;
 		gchar* _tmp15_;
-		gboolean _tmp16_;
-		const gchar* _tmp17_;
-		const gchar* _tmp18_ = NULL;
-		const gchar* _tmp19_;
-		const gchar* _tmp20_ = NULL;
-		gchar* _tmp21_ = NULL;
-		gchar* _tmp22_;
-		_tmp8_ = e;
-		_tmp9_ = base_info_get_base_info (_tmp8_);
-		_tmp10_ = _tmp9_;
-		_tmp13_ = g_base_info_iterate_attributes (_tmp10_, &iterator, &_tmp11_, &_tmp12_);
+		gchar* _tmp16_;
+		gboolean _tmp17_;
+		const gchar* _tmp18_;
+		const gchar* _tmp19_ = NULL;
+		const gchar* _tmp20_;
+		const gchar* _tmp21_ = NULL;
+		gchar* _tmp22_ = NULL;
+		gchar* _tmp23_;
+		_tmp9_ = e;
+		_tmp10_ = base_info_get_base_info (_tmp9_);
+		_tmp11_ = _tmp10_;
+		_tmp14_ = g_base_info_iterate_attributes (_tmp11_, &iterator, &_tmp12_, &_tmp13_);
 		_g_free0 (attribute);
-		_tmp14_ = g_strdup (_tmp11_);
-		attribute = _tmp14_;
-		_g_free0 (value);
 		_tmp15_ = g_strdup (_tmp12_);
-		value = _tmp15_;
-		_tmp16_ = !_tmp13_;
-		__vala_GIBaseInfo_free0 (_tmp10_);
-		if (_tmp16_) {
+		attribute = _tmp15_;
+		_g_free0 (value);
+		_tmp16_ = g_strdup (_tmp13_);
+		value = _tmp16_;
+		_tmp17_ = !_tmp14_;
+		_g_base_info_unref0 (_tmp11_);
+		if (_tmp17_) {
 			break;
 		}
-		_tmp17_ = attribute;
-		_tmp18_ = string_to_string (_tmp17_);
-		_tmp19_ = value;
-		_tmp20_ = string_to_string (_tmp19_);
-		_tmp21_ = g_strconcat ("//    ", _tmp18_, " = ", _tmp20_, "\n", NULL);
-		_tmp22_ = _tmp21_;
-		g_print ("%s", _tmp22_);
-		_g_free0 (_tmp22_);
+		_tmp18_ = attribute;
+		_tmp19_ = string_to_string (_tmp18_);
+		_tmp20_ = value;
+		_tmp21_ = string_to_string (_tmp20_);
+		_tmp22_ = g_strconcat ("//    ", _tmp19_, " = ", _tmp21_, "\n", NULL);
+		_tmp23_ = _tmp22_;
+		g_print ("%s", _tmp23_);
+		_g_free0 (_tmp23_);
 	}
 	_g_free0 (value);
 	_g_free0 (attribute);
@@ -697,7 +692,7 @@ static void namespace_impl_real_accept (NamespaceImpl* self, GirVisitor* visitor
 				_tmp15_ = visitor;
 				base_info_impl_accept (_tmp14_, _tmp15_);
 				_g_object_unref0 (_tmp14_);
-				__vala_GIBaseInfo_free0 (_tmp12_);
+				_g_base_info_unref0 (_tmp12_);
 			}
 		}
 	}
@@ -802,13 +797,8 @@ GType base_info_get_type (void) {
 }
 
 
-static GIBaseInfo* _vala_GIBaseInfo_copy (GIBaseInfo* self) {
-	return g_boxed_copy (g_base_info_gtype_get_type (), self);
-}
-
-
-static gpointer __vala_GIBaseInfo_copy0 (gpointer self) {
-	return self ? _vala_GIBaseInfo_copy (self) : NULL;
+static gpointer _g_base_info_ref0 (gpointer self) {
+	return self ? g_base_info_ref (self) : NULL;
 }
 
 
@@ -817,7 +807,7 @@ static GIBaseInfo* base_info_impl_real_get_base_info (BaseInfoImpl* self) {
 	GIBaseInfo* _tmp0_;
 	GIBaseInfo* _tmp1_;
 	_tmp0_ = self->priv->_base_info;
-	_tmp1_ = __vala_GIBaseInfo_copy0 (_tmp0_);
+	_tmp1_ = _g_base_info_ref0 (_tmp0_);
 	result = _tmp1_;
 	return result;
 }
@@ -850,8 +840,8 @@ BaseInfoImpl* base_info_impl_construct (GType object_type, GIBaseInfo* base_info
 	g_return_val_if_fail (base_info != NULL, NULL);
 	self = (BaseInfoImpl*) g_object_new (object_type, NULL);
 	_tmp0_ = base_info;
-	_tmp1_ = __vala_GIBaseInfo_copy0 (_tmp0_);
-	__vala_GIBaseInfo_free0 (self->priv->_base_info);
+	_tmp1_ = _g_base_info_ref0 (_tmp0_);
+	_g_base_info_unref0 (self->priv->_base_info);
 	self->priv->_base_info = _tmp1_;
 	return self;
 }
@@ -891,7 +881,7 @@ static void base_info_impl_instance_init (BaseInfoImpl * self) {
 static void base_info_impl_finalize (GObject* obj) {
 	BaseInfoImpl * self;
 	self = G_TYPE_CHECK_INSTANCE_CAST (obj, TYPE_BASE_INFO_IMPL, BaseInfoImpl);
-	__vala_GIBaseInfo_free0 (self->priv->_base_info);
+	_g_base_info_unref0 (self->priv->_base_info);
 	G_OBJECT_CLASS (base_info_impl_parent_class)->finalize (obj);
 }
 

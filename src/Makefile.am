@@ -15,13 +15,15 @@ AM_CFLAGS =\
 	 -g
 	 
 AM_VALAFLAGS = \
-  --pkg=gobject-introspection-1.0
+  --pkg=gobject-introspection-1.0 \
+  --vapidir=. 
+  
 
 lib_LTLIBRARIES = libdart_gir.la
 
 libdart_gir_la_VALASOURCES = \
-    dart_gir_core.vala \
-	gir_visitor.vala
+  dart_gir_core.vala \
+	gir_visitor.vala 
 
 libdart_gir_la_SOURCES = \
     $(libdart_gir_la_VALASOURCES) \
