@@ -20,6 +20,7 @@ cmake_minimum_required(VERSION "2.8.4")
 
 include("${CMAKE_SOURCE_DIR}/cmake/project.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/Common.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/TargetDistclean.cmake")
 
 project("${project_name}" C)
 string(TOLOWER "${project_name}" project_name_lower)
@@ -53,9 +54,9 @@ find_package(Vala "0.20" REQUIRED)
 # Custom library version checks.
 set(definitions)
 find_package(PkgConfig)
+
 # glib-2.0
 pkg_check_modules(GLIB2.0 REQUIRED "glib-2.0")
-
 
 set(default_vala_flags
   "--thread"
@@ -78,14 +79,12 @@ vala_pkgs(VALA_C
     ${default_vala_flags}
 )
 
-
 pkg_check_modules(GOBJECT_INTROSPECTION REQUIRED gobject-introspection-1.0)
 
 set(DARTSDK_FLAGS "-I/opt/google/dartsdk/include")
 set(PROJECT_CXX_FLAGS "${PROJECT_CXX_FLAGS} ${DARTSDK_FLAGS} ${GOBJECT_INTROSPECTION_CFLAGS}")
 set(PROJECT_C_FLAGS "${PROJECT_C_FLAGS} ${DARTSDK_FLAGS} ${GOBJECT_INTROSPECTION_CFLAGS}")
-set(PROJECT_LD_FLAGS "${PROJECT_LD_FLAGS} ${GOBJECT_INTROSPECTION_LIBS}")
-
+set(PROJECT_LDFLAGS "${PROJECT_LDFLAGS} ${GOBJECT_INTROSPECTION_LDFLAGS}")
 
 # Set common C-macros.
 add_definitions(-DPACKAGE_NAME="${project_name}")
@@ -101,10 +100,10 @@ add_definitions(-DLOCALE_DIR="${install_prefix}${localedir}")
 add_definitions(-DPIXMAP_DIR="${install_prefix}${pixdir}")
 add_definitions(-DVALA_VERSION="${VALA_SHORTVER}")
 
-add_executable("${project_name_lower}" ${VALA_C})
+add_library(${project_name_lower} SHARED ${VALA_C})
 target_link_libraries("${project_name_lower}" ${PROJECT_LDFLAGS})
 add_definitions(${PROJECT_C_FLAGS})
-install(TARGETS ${project_name_lower} DESTINATION "${bindir}")
+install(TARGETS ${project_name_lower} DESTINATION "${libdir}")
 
 # Install user interface files if used and copy them to build directory.
 set(uifiles_build)
@@ -132,10 +131,6 @@ add_custom_target(uninstall
                        -D "GSETTINGSDIR:FILEPATH=${install_prefix}${gsettingsdir}"
                        -P "${CMAKE_SOURCE_DIR}/cmake/SimpleUninstall.cmake"
 )
-
-# 
-# set(PROJECT_C_FLAGS ${GIR_DEFINITIONS})
-# set(PROJECT_LD_FLAGS ${GIR_LIBRARIES})
 
 # Print some information about build.
 datestring(current_date "%F %T")
