@@ -44,7 +44,7 @@ class StructInfo extends BaseInfo {
   Iterable<FieldInfo> get fields => 
       new Iterable<FieldInfo>.generate(_n_fields , _get_n_field);
 }
-class FlagsInfo extends BaseInfo {
+class FlagsInfo extends EnumInfo {
   FlagsInfo._intrinsic(GTypeDef intrinsic) : super._intrinsic(intrinsic);
 }
 class EnumInfo extends BaseInfo {
@@ -69,13 +69,35 @@ class EnumInfo extends BaseInfo {
   Iterable<ValueInfo> get values => 
       new Iterable<ValueInfo>.generate(_n_values , _get_value);
 }
-class CallbackInfo extends BaseInfo {
+class CallableInfo extends BaseInfo {
+  CallableInfo._intrinsic(GTypeDef intrinsic) : super._intrinsic(intrinsic);
+}
+class CallbackInfo extends CallableInfo {
   CallbackInfo._intrinsic(GTypeDef intrinsic) : super._intrinsic(intrinsic);
+  int childrenPending = 0;
+  int get _n_args native "dart_gir_callable_info_get_n_args";
+  ArgInfo _get_arg(int n) native "dart_gir_callable_info_get_arg";
+  TypeInfo get returnType native "dart_gir_callable_info_get_return_type";
+  Iterable<ArgInfo> get args => 
+      new Iterable<ArgInfo>.generate(_n_args , _get_arg);
+  Future accept(ContainerDeclaration library_, GirVisitor visitor) {
+    var completer = new Completer();
+    visitor.visitBaseInfo (library_, this).then((decl) {
+      for (var e in args) {
+        childrenPending++;
+        e.accept(decl, visitor).then((_) {
+          if (--childrenPending == 0)
+            completer.complete();
+        });
+      }
+    });
+    return completer.future;
+  }
 }
 class UnionInfo extends BaseInfo {
   UnionInfo._intrinsic(GTypeDef intrinsic) : super._intrinsic(intrinsic);
 }
-class FunctionInfo extends BaseInfo {
+class FunctionInfo extends CallableInfo {
   FunctionInfo._intrinsic(GTypeDef intrinsic) : super._intrinsic(intrinsic);
 }
 class TypeInfo extends BaseInfo {
@@ -116,8 +138,13 @@ class FieldInfo extends BaseInfo {
 class ValueInfo extends BaseInfo {
   ValueInfo._intrinsic(GTypeDef intrinsic) : super._intrinsic(intrinsic);
   int get value native  "dart_gir_value_info_get_value";
+} 
+class ArgInfo extends BaseInfo {
+  ArgInfo._intrinsic(GTypeDef intrinsic) : super._intrinsic(intrinsic);
+  TypeInfo get type native "dart_gir_arg_info_get_type";
 }
 
+ 
 class _AttributeIterator extends TypedBase implements Iterator<BaseInfoAttribute> {
   final BaseInfo _baseInfo;
   String _attribute;

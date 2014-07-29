@@ -435,25 +435,66 @@ class EnumDeclaration extends ContainerDeclaration implements TypeDeclaration {
   void set type(TypeTag value) {
     _type = value;
   }
+  
+  final bool isFlag;
 
   List<DartDeclaration> _values = new List<DartDeclaration>();
   
   EnumDeclaration (LibraryDeclaration this._topLibrary,  BaseInfo baseSource,
-      String this._name) : super(baseSource);
+      String this._name, bool this.isFlag) : super(baseSource) {
+    print("// $_name: $isFlag");
+  }
   String toString() {
     String baseType;
+    String flagPart = isFlag?"""
+
+  $name(${type.constTypeName()} this._index) : _name = null;
+  $name operator|($name other) => new $name(this._index | other._index);
+  $name operator&($name other) => new $name(this._index & other._index);""":"";
     return """
 class $name {
   final ${type.constTypeName()} _index;
   final ${type.constTypeName()} get index => _index;
   final String _name;
   const $name._(${type.constTypeName()} this._index, String this._name);
-  boolean operator==($name other) => this._index == other._index;
+  boolean operator==($name other) => this._index == other._index;$flagPart
 }
 """;
   }
   void addDeclaration(DartDeclaration decl) {
     _values.add(decl);
+    print(decl.toString());
+  }
+}
+class DelegateDeclaration extends ContainerDeclaration implements TypeDeclaration {
+  TypeId get typeId => TypeId.DELEGATE;
+  
+  final LibraryDeclaration _topLibrary;
+  LibraryDeclaration get topLibrary => _topLibrary;
+
+  String _name;
+  String get name => _name;
+  void set name(String value) {
+    _name = value;
+  }
+
+  
+  String _returnType;
+  String get returnType => _returnType;
+  void set returnType(String value) {
+    _returnType = value;
+  }
+
+  List<DartDeclaration> _args = new List<DartDeclaration>();
+  
+  DelegateDeclaration (LibraryDeclaration this._topLibrary,  BaseInfo baseSource,
+      String this._name) : super(baseSource);
+      
+  String toString() {
+    return """typedef $_returnType $name ()""";
+  }
+  void addDeclaration(DartDeclaration decl) {
+    _args.add(decl);
     print(decl.toString());
   }
 }
@@ -597,16 +638,38 @@ class NativeFunctionDeclaration extends DartTopOrOptionalClassDeclaration {
   }
 }
 
-class ArgumentExpression {
-  String _type;
+class ArgumentExpression extends DartDeclaration {
+  dynamic _type;
   String get name => _name;
+  void set name(String value) {
+    _name = value;
+  }
   String _name;
   dynamic defaultValue;
   bool hasDefault;
-  ArgumentExpression(String this._type, String this._name, [bool this.hasDefault = false, this.defaultValue = null]);
-  String toString() => "$_type $name";
+  final LibraryDeclaration _topLibrary;
+  LibraryDeclaration get topLibrary => _topLibrary;
+  
+  ArgumentExpression(LibraryDeclaration this._topLibrary, this._type,
+      String this._name, [bool this.hasDefault = false,
+      this.defaultValue = null]);
+  String toString() {
+    String typeName;
+    if (_type is String) {
+      typeName = _type;
+    } else {
+      typeName = _topLibrary.typeName(_type);
+    }
+    return "$typeName $name";
+  }
   String toStringWithDefault() {
-    var result = new StringBuffer("$_type $name");
+    String typeName;
+    if (_type is String) {
+      typeName = _type;
+    } else {
+      _topLibrary.typeName(_type);
+    }
+    var result = new StringBuffer("$typeName $name");
     if (hasDefault) {
       result.write(' = ');
       if (defaultValue is String) {
@@ -621,7 +684,13 @@ class ArgumentExpression {
     return result.toString();
   }
   String toStringAsNamed () {
-    var result = new StringBuffer("$_type $name");
+    String typeName;
+    if (_type is String) {
+      typeName = _type;
+    } else {
+      _topLibrary.typeName(_type);
+    }
+    var result = new StringBuffer("$typeName $name");
     if (hasDefault) {
       result.write(': ');
       if (defaultValue is String) {

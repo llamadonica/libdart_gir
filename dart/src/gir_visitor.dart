@@ -28,8 +28,12 @@ class GirVisitor {
         var decl = visitField(parent.topLibrary, e);
         parent.addDeclaration(decl);
         result.complete(decl);
+      } else if (e is FlagsInfo) {
+        var decl = visitEnum(parent.topLibrary, e, true);
+        parent.addDeclaration(decl);
+        result.complete(decl);
       } else if (e is EnumInfo) {
-        var decl = visitEnum(parent.topLibrary, e);
+        var decl = visitEnum(parent.topLibrary, e, false);
         parent.addDeclaration(decl);
         result.complete(decl);
       } else if (e is ValueInfo) {
@@ -40,7 +44,15 @@ class GirVisitor {
         var decl = visitConst(parent.topLibrary, e);
         parent.addDeclaration(decl);
         result.complete(decl);
-      } else {
+      } else if (e is CallbackInfo) {
+        var decl = visitDelegate(parent.topLibrary, e);
+        parent.addDeclaration(decl);
+        result.complete(decl);
+      } else if (e is ArgInfo) {
+        var decl = visitArgument(parent.topLibrary, e, parent);
+        parent.addDeclaration(decl);
+        result.complete(decl);
+      }else {
         result.complete(null);
       } 
     });
@@ -77,16 +89,21 @@ class GirVisitor {
     }
     return result;
   }
-  /*
-  void visitDelegate (CallbackInfo e);
-  */
-  DartDeclaration visitEnum (LibraryDeclaration library, EnumInfo e) {
-    var result = new EnumDeclaration(library,e,e.name);
+  DartDeclaration visitDelegate (LibraryDeclaration library, CallbackInfo e) {
+    var result = new DelegateDeclaration(library,e,e.name);
+    result.returnType =
+        (e.returnType.tag == TypeTag.VOID)?'void':library.typeName(e.returnType);
+    return result;
+  }
+  DartDeclaration visitEnum (LibraryDeclaration library, EnumInfo e, bool isFlag) {
+    var result = new EnumDeclaration(library,e,e.name,isFlag);
     result.type = e.storageType;
     return result;
   }
-  DartDeclaration visitEnumValue (LibraryDeclaration library, ValueInfo e, EnumDeclaration parent) {
-    var result = new EnumValueDeclaration(library,e,e.name.toUpperCase(),parent);
+  DartDeclaration visitEnumValue (LibraryDeclaration library, ValueInfo e,
+      EnumDeclaration parent) {
+    var result = new EnumValueDeclaration(library,e,e.name.toUpperCase(),
+        parent);
     result.value = e.value;
     return result;
   }
@@ -95,14 +112,16 @@ class GirVisitor {
   
   void visitVirtualFunction (VFuncInfo e);
   
-  void visitConstant (ConstantInfo e);
   
   void visitUnion (UnionInfo e);
   
   void visitSignal (SignalInfo e);
-  
-  void visitArgument (ArgInfo e);
   */
+  DartDeclaration visitArgument (LibraryDeclaration library, ArgInfo e, 
+                                 ContainerDeclaration parent) {
+    var result = new ArgumentExpression (library,e.type,e.name);
+    return result;
+  }
 }
 
 String underscoreNameToCamelCase (String value) {

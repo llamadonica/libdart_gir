@@ -19,8 +19,10 @@
 
 namespace DartGir {
 
-public delegate T? UnmarshallFromDart<T> (Dart.Handle handle, ref Dart.Handle? on_error) throws Dart.DartError;
-public delegate Dart.Handle MarshallToDart<T> (T? value, ref Dart.Handle? on_error) throws Dart.DartError;
+public delegate T? UnmarshallFromDart<T> (Dart.Handle handle,
+    ref Dart.Handle? on_error) throws Dart.DartError;
+public delegate Dart.Handle MarshallToDart<T> (T? value,
+    ref Dart.Handle? on_error) throws Dart.DartError;
 
 [ PrintfFormat ] 
 public void debug (string format, ...) {
@@ -116,7 +118,15 @@ Dart.NativeFunction? resolve_name(Dart.Handle name, int argc, out bool auto_setu
       return EnumInfo.get_storage_type;
     case "dart_gir_value_info_get_value":
       return ValueInfo.get_value;
-      
+    case "dart_gir_callable_info_get_n_args":
+      return CallableInfo.get_n_args;
+    case "dart_gir_callable_info_get_arg":
+      return CallableInfo.get_arg;
+    case "dart_gir_callable_info_get_return_type":
+      return CallableInfo.get_return_type;
+    default: return null;
+    case "dart_gir_arg_info_get_type":
+      return ArgInfo.get_type;
     default: return null;
   }
 }
@@ -613,7 +623,8 @@ namespace Repository {
   }
   
   public static void get_dependencies (Dart.NativeArguments arg) {
-    Dart.ClassHandle cls = Dart.LibraryHandle.get_root_library().get_class(new Dart.StringHandle("GTypeDef"));
+    Dart.ClassHandle cls = 
+        Dart.LibraryHandle.get_root_library().get_class(new Dart.StringHandle("GTypeDef"));
     cls.rethrow();
     
     Dart.ClassHandle typeLibCls = Dart.LibraryHandle.get_root_library().get_class(new Dart.StringHandle("GTypeDef"));
@@ -1232,7 +1243,8 @@ namespace EnumInfo {
 
     try {
       GI.BaseInfo base_info = Unmarshallers.gi_base_info(infoProxy, ref set_on_error);
-      if (base_info == null || base_info.get_type() != GI.InfoType.ENUM)
+      if (base_info == null || ( base_info.get_type() != GI.InfoType.ENUM &&
+          base_info.get_type() != GI.InfoType.FLAGS))
         throw new Dart.DartError.UNEXPECTED_CAST("Expected [GI.EmumInfo] in unmarshaller.");
   
       var value = ((GI.EnumInfo) base_info).n_values;
@@ -1256,7 +1268,8 @@ namespace EnumInfo {
 
     try {
       GI.BaseInfo base_info = Unmarshallers.gi_base_info(infoProxy, ref set_on_error);
-      if (base_info == null || base_info.get_type() != GI.InfoType.ENUM)
+      if (base_info == null || ( base_info.get_type() != GI.InfoType.ENUM &&
+          base_info.get_type() != GI.InfoType.FLAGS))
         throw new Dart.DartError.UNEXPECTED_CAST("Expected [GI.EmumInfo] in unmarshaller.");
   
       var value = ((GI.EnumInfo) base_info).storage_type;
@@ -1283,7 +1296,8 @@ namespace EnumInfo {
     try {
       GI.BaseInfo base_info = Unmarshallers.gi_base_info(infoProxy, ref set_on_error);
       var n = Unmarshallers.integer_native(nProxy, ref set_on_error);
-      if (base_info == null || base_info.get_type() != GI.InfoType.ENUM)
+      if (base_info == null || ( base_info.get_type() != GI.InfoType.ENUM &&
+          base_info.get_type() != GI.InfoType.FLAGS))
         throw new Dart.DartError.UNEXPECTED_CAST("Expected [GI.EmumInfo] in unmarshaller.");
 
       var value = ((GI.EnumInfo) base_info).get_value(n);
@@ -1325,7 +1339,115 @@ namespace ValueInfo {
     }
   }
 }
- 
+namespace CallableInfo {
+  public static void get_n_args (Dart.NativeArguments arg) {
+    debug("Entered CallableInfo.get_n_args\n");
+    Dart.Handle infoProxy = arg.get_native_argument(0);
+    infoProxy.rethrow();
+
+    Dart.Handle? set_on_error = null;
+
+    try {
+      GI.BaseInfo base_info = Unmarshallers.gi_base_info(infoProxy, ref set_on_error);
+      if (base_info == null ||  (base_info.get_type() != GI.InfoType.FUNCTION &&
+          base_info.get_type() != GI.InfoType.CALLBACK && 
+          base_info.get_type() != GI.InfoType.VFUNC))
+        throw new Dart.DartError.UNEXPECTED_CAST("Expected [GI.CallableInfo] in unmarshaller.");
+  
+      var value = ((GI.CallableInfo) base_info).n_args;
+      var result = Marshallers.unsigned_integer64((uint64) value, ref set_on_error);
+      arg.set_return_value(result);
+    } catch (Dart.DartError err) {
+      if (err is Dart.DartError.CATCH && set_on_error != null) {
+        set_on_error.rethrow();
+      } else if (err is Dart.DartError.CATCH) {
+        assert_not_reached();
+      }
+      (new Dart.APIErrorHandle(err.message)).rethrow();
+    }
+  }
+  public static void get_arg (Dart.NativeArguments arg) {
+    debug("Entered CallableInfo.get_arg\n");
+    Dart.Handle infoProxy = arg.get_native_argument(0);
+    infoProxy.rethrow();
+
+    Dart.Handle nProxy = arg.get_native_argument(1);
+    nProxy.rethrow();
+    Dart.Handle? set_on_error = null;
+
+    try {
+      GI.BaseInfo base_info = Unmarshallers.gi_base_info(infoProxy, ref set_on_error);
+      var n = Unmarshallers.integer_native(nProxy, ref set_on_error);
+      if (base_info == null ||  (base_info.get_type() != GI.InfoType.FUNCTION &&
+          base_info.get_type() != GI.InfoType.CALLBACK && 
+          base_info.get_type() != GI.InfoType.VFUNC))
+        throw new Dart.DartError.UNEXPECTED_CAST("Expected [GI.CallableInfo] in unmarshaller.");
+
+      var value = ((GI.CallableInfo) base_info).get_arg(n);
+      var result = Marshallers.gi_base_info(value, ref set_on_error);
+      arg.set_return_value(result);
+    } catch (Dart.DartError err) {
+      if (err is Dart.DartError.CATCH && set_on_error != null) {
+        set_on_error.rethrow();
+      } else if (err is Dart.DartError.CATCH) {
+        assert_not_reached();
+      }
+      (new Dart.APIErrorHandle(err.message)).rethrow();
+    }
+  }
+  public static void get_return_type (Dart.NativeArguments arg) {
+    debug("Entered CallableInfo.get_return_type\n");
+    Dart.Handle infoProxy = arg.get_native_argument(0);
+    infoProxy.rethrow();
+
+    Dart.Handle? set_on_error = null;
+
+    try {
+      GI.BaseInfo base_info = Unmarshallers.gi_base_info(infoProxy, ref set_on_error);
+      if (base_info == null ||  (base_info.get_type() != GI.InfoType.FUNCTION &&
+          base_info.get_type() != GI.InfoType.CALLBACK && 
+          base_info.get_type() != GI.InfoType.VFUNC))
+        throw new Dart.DartError.UNEXPECTED_CAST("Expected [GI.CallableInfo] in unmarshaller.");
+
+      var value = ((GI.CallableInfo) base_info).return_type;
+      var result = Marshallers.gi_base_info(value, ref set_on_error);
+      arg.set_return_value(result);
+    } catch (Dart.DartError err) {
+      if (err is Dart.DartError.CATCH && set_on_error != null) {
+        set_on_error.rethrow();
+      } else if (err is Dart.DartError.CATCH) {
+        assert_not_reached();
+      }
+      (new Dart.APIErrorHandle(err.message)).rethrow();
+    }
+  }
+}
+namespace ArgInfo {
+  public static void get_type (Dart.NativeArguments arg) {
+    debug("Entered ArgInfo.get_type\n");
+    Dart.Handle infoProxy = arg.get_native_argument(0);
+    infoProxy.rethrow();
+
+    Dart.Handle? set_on_error = null;
+
+    try {
+      GI.BaseInfo base_info = Unmarshallers.gi_base_info(infoProxy, ref set_on_error);
+      if (base_info == null || base_info.get_type() != GI.InfoType.ARG)
+        throw new Dart.DartError.UNEXPECTED_CAST("Expected [GI.CallableInfo] in unmarshaller.");
+
+      var value = ((GI.ArgInfo) base_info).get_type();
+      var result = Marshallers.gi_base_info(value, ref set_on_error);
+      arg.set_return_value(result);
+    } catch (Dart.DartError err) {
+      if (err is Dart.DartError.CATCH && set_on_error != null) {
+        set_on_error.rethrow();
+      } else if (err is Dart.DartError.CATCH) {
+        assert_not_reached();
+      }
+      (new Dart.APIErrorHandle(err.message)).rethrow();
+    }
+  }
+}
 }
 
 extern int g_constant_info_get_value (GI.ConstantInfo info, out GI.Argument value);
@@ -1372,7 +1494,7 @@ public class ConstantValue {
   }
 }
 [Compact]
-[CCode (ref_function="g_attribute_iterator_new_copy", unref_function="g_attribute_iterator_free")]
+[CCode (ref_function="gi_attribute_iterator_new_copy", unref_function="gi_attribute_iterator_free")]
 public class AttributeIterator {
   public GI.AttributeIter *value;
   public AttributeIterator() {
